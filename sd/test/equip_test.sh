@@ -69,9 +69,12 @@ get_config() {
 ### first we assume that this script is started from /home/init.sh and will replace it from the below lines (which are not commented in init.sh :
 
 #if [ -f "/home/hd1/test/equip_test.sh" ]; then
-#	/home/hd1/test/equip_test.sh
-#	exit
+# /home/hd1/test/equip_test.sh
+# exit
 #fi
+
+### Init logs
+log_init
 
 ######################################################
 # start of our custom script !!!!!!
@@ -82,8 +85,8 @@ log "Start telnet server..."
 telnetd &
 
 
-### configure timezone                                                                                                                                                                               
-echo "$(get_config TIMEZONE)" > /etc/TZ             
+### configure timezone
+echo "$(get_config TIMEZONE)" > /etc/TZ
 
 ### get time is done after wifi configuration!
 
@@ -129,7 +132,7 @@ if [ $bcmver = $bcmcmd ];then
     mount -t usbfs none /proc/bus/usb
     /home/bcm/bcmdl -n /tmp/nvram.bin /home/bcm/fw_bcmdhd_xy_r2.bin.trx -C 5 
     insmod /home/bcm/bcmdhd.ko iface_name=ra0
-    echo "BCM 43143:bd1e"
+    log "BCM 43143:bd1e"
 elif [ $bcmver1 = $bcmcmd ];then
     echo 1 > /tmp/isbcm
     #/home/bcm/nvram set /home/bcm/nvram.bin
@@ -137,12 +140,12 @@ elif [ $bcmver1 = $bcmcmd ];then
     mount -t usbfs none /proc/bus/usb
     /home/bcm/bcmdl -n /tmp/nvram.bin /home/bcm/fw_bcmdhd_xy_r2.bin.trx -C 5 
     insmod /home/bcm/bcmdhd.ko iface_name=ra0
-    echo "BCM 43143:0bdc"
+    log "BCM 43143:0bdc"
 else
     echo 1 > /tmp/ismtk
     insmod /home/mtprealloc7601Usta.ko
     insmod /home/mt7601Usta.ko
-    echo "MTK 7601"
+    log "MTK 7601"
 fi
 
 ifconfig ra0 up
@@ -189,19 +192,19 @@ cd /home/3518
 
 
 himm 0x20050074 0x06802424
-   
+
 ### what is this ?
-cd /home                  
-./peripheral &   
+cd /home
+./peripheral &
 ./dispatch &
 ./exnet &
 #./mysystem &
-	
+
 count=5
 
 while [ $count -gt 0 ]
 do
-if [ -f "/tmp/init_finish" ]; then         
+if [ -f "/tmp/init_finish" ]; then
         break
 else
         count=`expr $count - 1`
@@ -217,8 +220,6 @@ done
 cp /home/hd1/test/wpa_supplicant.conf /home/wpa_supplicant.conf
 
 
-### Init logs
-log_init
 # Put version informations in logs and a file which will be included in the http server default page
 TMP_VERSION_FILE=/tmp/version_information
 rm -f ${TMP_VERSION_FILE}
@@ -277,7 +278,6 @@ log "The RTSP server binary version which will be used is the '${RTSP_VERSION}'"
 log "The HTTP server binary version which will be used is the '${HTTP_VERSION}'"
 
 
-
 log "Check for some files size..."
 ls -l /home/hd1/test/rtspsvr* /home/hd1/test/http/server* | sed "s/^/    /" >> ${LOG_FILE}
 
@@ -303,14 +303,14 @@ log "Done"
 log "Configuration is :"
 ifconfig | sed "s/^/    /" >> ${LOG_FILE}
 
-### configure DNS (google one)
+### configure DNS
 log "Do network configuration 2/2 (DNS)"
 echo "nameserver $(get_config NAMESERVER)" > /etc/resolv.conf
 log "Done"
 
-### configure time on a NTP server                    
+### configure time on a NTP server
 log "Get time from a NTP server..."
-NTP_SERVER=$(get_config NTP_SERVER)                  
+NTP_SERVER=$(get_config NTP_SERVER)
 log "But first, test the NTP server '${NTP_SERVER}':"
 ping -c1 ${NTP_SERVER} >> ${LOG_FILE}
 log "Previous datetime is $(date)"
@@ -327,7 +327,7 @@ root_pwd=$(get_config ROOT_PASSWORD)
 log "Start blue led on"
 led -yoff -bon
 
-	
+
 ### Rename the timeout sound file to avoid being spammed with chinese audio stuff...
 [ -f /home/timeout.g726 ] && mv /home/timeout.g726 /home/timeout.g726.OFF
 
