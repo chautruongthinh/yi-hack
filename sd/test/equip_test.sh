@@ -425,9 +425,18 @@ himm 0x20030048 0x302
 
 rm /home/hd1/FSCK*
 
+# Check and create crontabs folder
+crontab_folder="/var/spool/cron/crontabs"
+if [ ! -r "$crontab_folder" ]; then
+    mkdir -p "$crontab_folder"
+fi
+# Start crond daemon
+/usr/sbin/crond -b
+
 ### Final led color
 
 led $(get_config LED_WHEN_READY)
+
 
 ### List the processes after startup
 log "Processes after startup :"
