@@ -442,6 +442,10 @@ led $(get_config LED_WHEN_READY)
 log "Processes after startup :"
 ps >> ${LOG_FILE}
 
+### List storage status
+log "Storage status :"
+df -h >> ${LOG_FILE}
+
 ### to make sure log are written...
 
 sync
