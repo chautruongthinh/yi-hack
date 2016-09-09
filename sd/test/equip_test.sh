@@ -290,8 +290,9 @@ log "Check for wifi configuration file...*"
 log $(find /home -name "wpa_supplicant.conf")
 
 log "Start wifi configuration..."
-log $(/home/wpa_supplicant -B -i ra0 -c /home/wpa_supplicant.conf )
+res=$(/home/wpa_supplicant -B -i ra0 -c /home/wpa_supplicant.conf )
 log "Status for wifi configuration=$?  (0 is ok)"
+log "Wifi configuration answer: $res"
 
 log "Do network configuration 1/2 (ip and gateway)"
 #ifconfig ra0 192.168.1.121 netmask 255.255.255.0
@@ -330,13 +331,6 @@ led -yoff -bon
 
 ### Rename the timeout sound file to avoid being spammed with chinese audio stuff...
 [ -f /home/timeout.g726 ] && mv /home/timeout.g726 /home/timeout.g726.OFF
-
-### Rmm stuff
-# without this, most things does not work (http server, rtsp)
-# It starts to use the cloud (which is no more launched) so you will find timeout in the logs
-cd /home  
-./rmm &
-
 
 sync
 
@@ -385,23 +379,6 @@ cd /home
 ./record_event &
 ./mp4record 60 &
 
-### Launch script to check for motion the last minute
-/home/hd1/test/check_motion.sh &
-
-### Rtsp server
-cd /home/hd1/test/
-log "Start rtsp server : rtspsvr${RTSP_VERSION}..."
-if [[ $(get_config DEBUG) == "yes" ]] ; then
-    ./rtspsvr${RTSP_VERSION} > /${LOG_DIR}/log_rtsp.txt 2>&1 &
-else
-    ./rtspsvr${RTSP_VERSION} &
-fi
-sleep 1
-log "Check for rtsp process : "
-ps | grep rtspsvr | grep -v grep >> ${LOG_FILE}
-
-sleep 5
-
 ### Some configuration
 
 himm 0x20050068 0x327c2c
@@ -435,8 +412,36 @@ fi
 
 ### Final led color
 
-led $(get_config LED_WHEN_READY)
+### Check if reach gateway and notify
+ping -c1 -W2 $(get_config GATEWAY) > /dev/null
+if [ 0 -eq $? ]; then
+    led $(get_config LED_WHEN_READY)
+    /home/rmm "/home/hd1/voice/success.g726" 1
+else
+    led -boff -yfast
+fi
 
+### Rmm stuff
+# without this, most things does not work (http server, rtsp)
+# It starts to use the cloud (which is no more launched) so you will find timeout in the logs
+# This must be launched after all "/home/rmm" command calls
+cd /home
+./rmm &
+
+
+### Rtsp server
+cd /home/hd1/test/
+log "Start rtsp server : rtspsvr${RTSP_VERSION}..."
+if [[ $(get_config DEBUG) == "yes" ]] ; then
+    ./rtspsvr${RTSP_VERSION} > /${LOG_DIR}/log_rtsp.txt 2>&1 &
+else
+    ./rtspsvr${RTSP_VERSION} &
+fi
+sleep 1
+log "Check for rtsp process : "
+ps | grep rtspsvr | grep -v grep >> ${LOG_FILE}
+
+sleep 5
 
 ### List the processes after startup
 log "Processes after startup :"
