@@ -86,6 +86,7 @@ telnetd &
 
 
 ### configure timezone
+
 echo "$(get_config TIMEZONE)" > /etc/TZ
 
 ### get time is done after wifi configuration!
@@ -115,6 +116,10 @@ cd /home/3518
 
 # added :
 himm 0x20050074 0x06802424
+
+### Let ppl hear that we start
+/home/rmm "/home/hd1/voice/welcome.g726" 1
+/home/rmm "/home/hd1/voice/wait.g726" 1
 
 ### start blinking blue led for configuration in progress
 #/home/led_ctl -boff -yon &
@@ -286,6 +291,9 @@ log "Debug mode = $(get_config DEBUG)"
 
 # first, configure wifi
 
+### Let ppl hear that we start connect wifi
+/home/rmm "/home/hd1/voice/connectting.g726" 1
+
 log "Check for wifi configuration file...*"
 log $(find /home -name "wpa_supplicant.conf")
 
@@ -319,6 +327,12 @@ ntpd -q -p ${NTP_SERVER}
 log "Done"                   
 log "New datetime is $(date)"
 
+
+### Check if reach gateway and notify
+ping -c1 -W2 $(get_config GATEWAY) > /dev/null
+if [ 0 -eq $? ]; then
+    /home/rmm "/home/hd1/voice/wifi_connected.g726" 1
+fi
 
 ### set the root password
 root_pwd=$(get_config ROOT_PASSWORD)
@@ -442,6 +456,7 @@ log "Check for rtsp process : "
 ps | grep rtspsvr | grep -v grep >> ${LOG_FILE}
 
 sleep 5
+
 
 ### List the processes after startup
 log "Processes after startup :"
