@@ -8,29 +8,35 @@ case ${FIRMWARE_LETTER} in
         RTSP_VERSION='M'
         HTTP_VERSION='M'
         ;;
-
+        
+    # 1.8.6.1
+    Q)  # Tested :)
+        RTSP_VERSION='M'
+        HTTP_VERSION='M'
+        ;;
+        
     # 1.8.5.1
     M)  # Tested :)
         RTSP_VERSION='M'
         HTTP_VERSION='M'
         ;;
-
+        
     L)  # Tested :)
         RTSP_VERSION='M'
         HTTP_VERSION='M'
         ;;
-
+        
     K)  # NOT TESTED YET
         RTSP_VERSION='K'
         HTTP_VERSION='M'
         ;;
-
+        
     B|E|F|H|I|J)  # NOT TESTED YET
         RTSP_VERSION='I'
         HTTP_VERSION='J'
         ;;
-
-    *)
+        
+    *) 
         RTSP_VERSION='M'
         HTTP_VERSION='M'
         log "WARNING : I don't know which RTSP binary version is compliant with your firmware! I will try to use the M..."
