@@ -394,7 +394,9 @@ fi
 
 sync
 
-
+# fix logo
+cp -f /home/hd1/test/*.bmp /home/
+mv /home/recv.726 /home/recv_X.726
 
 ### Launch record event
 cd /home
